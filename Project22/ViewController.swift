@@ -69,13 +69,23 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
                 //can we detect how far beacon is away from us
                 if CLLocationManager.isRangingAvailable() {
                     //do stuff
+                    starScanning()
                 }
             }
             
         }
     }
-    
-    
+    //detection and ranging
+    func starScanning() {
+        //converting a string into a UUID rather than generating a UUID and converting it to a string. The UUID there is one of the ones that comes built into the Locate Beacon app
+        let uuid = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E5")!
+        //to range beacons:
+        //1.we  CLBeaconRegion, which is used to identify a beacon uniquely
+        let beaconRegion = CLBeaconRegion(proximityUUID: uuid, major: 123, minor: 456, identifier: "MyBeacon")
+        //2.Second, we give that to our CLLocationManager object by calling its startMonitoring(for:) and startRangingBeacons(in:) methods
+        locationManager?.startMonitoring(for: beaconRegion)
+        locationManager?.startRangingBeacons(satisfying: beaconRegion.beaconIdentityConstraint)
+    }
 
 }
 
