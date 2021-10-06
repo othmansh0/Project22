@@ -43,6 +43,13 @@
 
 //minor number can (if you wish) be used to subdivide within the major number. For example, if your flagship London store has 12 floors each of which has 10 departments, you would assign each of them a different minor number
 
+
+//-----------------------------------------------------------------------------------------
+
+//@unknown default, which is specifically there to catch future values. This allows you to cover all the other cases explicitly, then provide one extra case to handle as-yet-unknown cases in the future
+
+//catch the ranging method from CLLocationManager. We'll be given the array of beacons it found for a given region, which allows for cases where there are multiple beacons transmitting the same UUID
+
 import CoreLocation
 import UIKit
 
@@ -59,7 +66,7 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
         
         view.backgroundColor = .gray
     }
-
+    
     //get called when user made their mind about giving permission or not
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         //check if they gave us permission for alway
@@ -75,17 +82,55 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
             
         }
     }
+    
+    
+    //catch the ranging method from CLLocationManager
+    func locationManager(_ manager: CLLocationManager, didRange beacons: [CLBeacon], satisfying beaconConstraint: CLBeaconIdentityConstraint) {
+        //array of beacons it found for a given region, which allows for cases where there are multiple beacons transmitting the same UUID
+        if let beacon = beacons.first {
+            //If we receive any beacons from this method, we'll pull out the first one and use its proximity
+            update(distance: beacon.proximity)
+        } else {
+            //If there aren't any beacons, we'll just use .unknown
+            update(distance: .unknown)
+        }
+    }
+    
+    
     //detection and ranging
     func starScanning() {
         //converting a string into a UUID rather than generating a UUID and converting it to a string. The UUID there is one of the ones that comes built into the Locate Beacon app
         let uuid = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E5")!
         //to range beacons:
         //1.we  CLBeaconRegion, which is used to identify a beacon uniquely
-        let beaconRegion = CLBeaconRegion(proximityUUID: uuid, major: 123, minor: 456, identifier: "MyBeacon")
-        //2.Second, we give that to our CLLocationManager object by calling its startMonitoring(for:) and startRangingBeacons(in:) methods
+        let beaconIdentity = CLBeaconIdentityConstraint(uuid: uuid, major: 123, minor: 456)
+           let beaconRegion = CLBeaconRegion(beaconIdentityConstraint: beaconIdentity, identifier: "MyBeacon")        //2.Second, we give that to our CLLocationManager object by calling its startMonitoring(for:) and startRangingBeacons(in:) methods
         locationManager?.startMonitoring(for: beaconRegion)
-        locationManager?.startRangingBeacons(satisfying: beaconRegion.beaconIdentityConstraint)
+        locationManager?.startRangingBeacons(satisfying: beaconIdentity)
     }
-
+    
+    func update(distance: CLProximity) {
+        UIView.animate(withDuration: 1) {
+            switch distance {
+            
+               
+            case .far:
+                self.view.backgroundColor = .blue
+                self.distanceReading.text = "FAR"
+            case .near:
+                self.view.backgroundColor = .orange
+                self.distanceReading.text = "NEAR"
+            case .immediate:
+                self.view.backgroundColor = .red
+                self.distanceReading.text = "RIGHT HERE"
+            default:
+                self.view.backgroundColor = .gray
+                self.distanceReading.text = "UNKOWN"
+                
+            }
+        }
+        
+    }
+    
 }
 
