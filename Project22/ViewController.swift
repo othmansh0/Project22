@@ -55,6 +55,7 @@ import UIKit
 
 class ViewController: UIViewController , CLLocationManagerDelegate{
     @IBOutlet var distanceReading: UILabel!
+    @IBOutlet var beaconName: UILabel!
     var locationManager: CLLocationManager?
     var firstDetect = false
     override func viewDidLoad() {
@@ -90,6 +91,7 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
         //array of beacons it found for a given region, which allows for cases where there are multiple beacons transmitting the same UUID
         if let beacon = beacons.first {
             //If we receive any beacons from this method, we'll pull out the first one and use its proximity
+            beaconName.text = beacon.uuid.uuidString
             update(distance: beacon.proximity)
         } else {
             //If there aren't any beacons, we'll just use .unknown
@@ -102,12 +104,20 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
     func starScanning() {
         //converting a string into a UUID rather than generating a UUID and converting it to a string. The UUID there is one of the ones that comes built into the Locate Beacon app
         let uuid = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E5")!
+        let uuid2 = UUID(uuidString: "E2C56DB5-DFFB-48D2-B060-D0F5A71096E0")!
         //to range beacons:
         //1.we  CLBeaconRegion, which is used to identify a beacon uniquely
         let beaconIdentity = CLBeaconIdentityConstraint(uuid: uuid, major: 123, minor: 456)
            let beaconRegion = CLBeaconRegion(beaconIdentityConstraint: beaconIdentity, identifier: "MyBeacon")        //2.Second, we give that to our CLLocationManager object by calling its startMonitoring(for:) and startRangingBeacons(in:) methods
+        
+        let beaconIdentity2 = CLBeaconIdentityConstraint(uuid: uuid2, major: 12, minor: 34)
+        let beaconRegion2 = CLBeaconRegion(beaconIdentityConstraint: beaconIdentity2, identifier: "MyBeacon2")
+        
         locationManager?.startMonitoring(for: beaconRegion)
         locationManager?.startRangingBeacons(satisfying: beaconIdentity)
+        
+        locationManager?.startMonitoring(for: beaconRegion2)
+        locationManager?.startRangingBeacons(satisfying: beaconIdentity2)
     }
     
     func update(distance: CLProximity) {
