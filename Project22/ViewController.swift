@@ -56,6 +56,7 @@ import UIKit
 class ViewController: UIViewController , CLLocationManagerDelegate{
     @IBOutlet var distanceReading: UILabel!
     var locationManager: CLLocationManager?
+    var firstDetect = false
     override func viewDidLoad() {
         super.viewDidLoad()
         locationManager = CLLocationManager()
@@ -111,18 +112,33 @@ class ViewController: UIViewController , CLLocationManagerDelegate{
     
     func update(distance: CLProximity) {
         UIView.animate(withDuration: 1) {
+            let ac = UIAlertController(title: "Beacon detected", message: "", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Continue", style: .default))
+           
             switch distance {
             
-               
+            
             case .far:
                 self.view.backgroundColor = .blue
                 self.distanceReading.text = "FAR"
+                if !self.firstDetect {
+                    self.present(ac, animated: true)
+                    self.firstDetect = true
+                }
             case .near:
                 self.view.backgroundColor = .orange
                 self.distanceReading.text = "NEAR"
+                if !self.firstDetect {
+                    self.present(ac, animated: true)
+                    self.firstDetect = true
+                }
             case .immediate:
                 self.view.backgroundColor = .red
                 self.distanceReading.text = "RIGHT HERE"
+                if !self.firstDetect {
+                    self.present(ac, animated: true)
+                    self.firstDetect = true
+                }
             default:
                 self.view.backgroundColor = .gray
                 self.distanceReading.text = "UNKOWN"
